@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
 )
@@ -29,6 +31,9 @@ func main() {
 	}
 }
 
+var logList *tview.List
+var showCount, hideCount int
+
 func InitGui() (ui *Ui) {
 	ui = &Ui{}
 
@@ -40,13 +45,14 @@ func InitGui() (ui *Ui) {
 	// help box modal
 	ui.helpModal = makeModal(ui.helpWidget.Root, 80, 30)
 	ui.helpWidget.Root.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
+		logList.AddItem("Got an input event!", "", 0, nil)
 		ui.CloseHelp()
 		return event
 	})
 
-	logList := tview.NewList().ShowSecondaryText(false).
-		AddItem("Some Text", "", rune('a'), func() {}).
-		AddItem("More text", "", rune('b'), func() {})
+	logList = tview.NewList().ShowSecondaryText(false).
+		AddItem("Some Text", "", 0, nil).
+		AddItem("More text", "", 0, nil)
 
 	logPage := tview.NewFlex().
 		SetDirection(tview.FlexRow).
@@ -75,6 +81,8 @@ func (ui *Ui) Run() error {
 }
 
 func (ui *Ui) ShowHelp() {
+	logList.AddItem(fmt.Sprintf("ShowHelp called %d times", showCount), "", 0, nil)
+	showCount++
 	ui.helpWidget.RenderHelp()
 
 	ui.pages.ShowPage(PageHelpBox)
@@ -82,6 +90,8 @@ func (ui *Ui) ShowHelp() {
 }
 
 func (ui *Ui) CloseHelp() {
+	logList.AddItem(fmt.Sprintf("CloseHelp called %d times", hideCount), "", 0, nil)
+	hideCount++
 	ui.pages.HidePage(PageHelpBox)
 }
 
